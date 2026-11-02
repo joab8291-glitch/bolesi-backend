@@ -7,12 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole { SUPER_ADMIN CUSTOMER }
-enum ProductStatus { DRAFT ACTIVE ARCHIVED }
-enum OrderStatus { PENDING PAYMENT_PENDING PAID PROCESSING READY_FOR_PICKUP OUT_FOR_DELIVERY COMPLETED CANCELLED REFUNDED }
-enum FulfilmentType { DELIVERY COLLECTION }
-enum PaymentMethod { MPESA PAY_AT_SHOP }
-enum PaymentStatus { INITIATED PENDING SUCCESS FAILED CANCELLED REFUNDED }
+enum UserRole {\n  SUPER_ADMIN\n  CUSTOMER\n}
+enum ProductStatus {\n  DRAFT\n  ACTIVE\n  ARCHIVED\n}
+enum OrderStatus {\n  PENDING\n  PAYMENT_PENDING\n  PAID\n  PROCESSING\n  READY_FOR_PICKUP\n  OUT_FOR_DELIVERY\n  COMPLETED\n  CANCELLED\n  REFUNDED\n}
+enum FulfilmentType {\n  DELIVERY\n  COLLECTION\n}
+enum PaymentMethod {\n  MPESA\n  PAY_AT_SHOP\n}
+enum PaymentStatus {\n  INITIATED\n  PENDING\n  SUCCESS\n  FAILED\n  CANCELLED\n  REFUNDED\n}
 
 model User {
   id           String   @id @default(cuid())
