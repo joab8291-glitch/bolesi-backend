@@ -8,7 +8,7 @@ app.set("trust proxy", 1);
 app.use(helmet());
 const normalizeOrigin = (value) => {
   try { return new URL(String(value).trim()).origin; }
-  catch { return String(value || "").trim().replace(/\\/+$/, ""); }
+  catch { return String(value || "").trim(); }
 };
 const configuredOrigins = [
   ...(process.env.ALLOWED_ORIGINS || "").split(","),
@@ -22,7 +22,7 @@ const isBolesiVercelOrigin = (value) => {
     const url = new URL(value);
     return url.protocol === "https:" &&
       (url.hostname === "bolesi.vercel.app" ||
-       (/^bolesi-[a-z0-9-]+\\.vercel\\.app$/i).test(url.hostname));
+       (url.hostname.startsWith("bolesi-") && url.hostname.endsWith(".vercel.app")));
   } catch { return false; }
 };
 app.use(cors({
