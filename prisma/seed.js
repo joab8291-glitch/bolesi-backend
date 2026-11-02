@@ -141,7 +141,7 @@ async function main() {
     const priceKnown = Number.isFinite(p.price) && p.price > 0;
     const categoryId = categories.get(p.category) || null;
     const slug = slugify(p.name) + "-" + slugify(p.sku);
-    const existing = await prisma.product.findUnique({ where: { sku: p.sku } });
+    const existing = await prisma.product.findUnique({ where: { sku: p.sku }, include: { images: true } });
     const data = {
       name: p.name,
       slug,
@@ -157,6 +157,14 @@ async function main() {
     };
     if (existing) {
       await prisma.product.update({ where: { id: existing.id }, data });
+      // Backfill an image for previously imported products that have none.
+      // Keep any existing product-specific images untouched.
+      const imageUrl = categoryImages[p.category];
+      if (imageUrl && (!existing.images || existing.images.length === 0)) {
+        await prisma.productImage.create({
+          data: { url: imageUrl, alt: p.name, sortOrder: 0, productId: existing.id }
+        });
+      }
       updated++;
     } else {
       const imageUrl = categoryImages[p.category];
