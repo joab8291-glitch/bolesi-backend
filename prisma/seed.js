@@ -99,7 +99,15 @@ const categoryImages = {
   "Smart Locks": "https://cdn.xuansiwei.com/liuji7923/1701137581371/tupian%2016.png?x-oss-process=style%2Fpng_small",
   "Built-in Ovens": "https://cdn.xuansiwei.com/liuji7923/1776104519469/tupian2_r__1446-1412_c__0c0c0d_.png?x-oss-process=style%2Fpng_small",
   "Range Hoods": "https://cdn.xuansiwei.com/liuji7923/1701137762425/tupian%206.png?x-oss-process=style%2Fpng_small",
-  "Instant Water Heaters": "https://cdn.xuansiwei.com/liuji7923/1701137528586/tupian%2020.png?x-oss-process=style%2Fpng_small"
+  "Instant Water Heaters": "https://cdn.xuansiwei.com/liuji7923/1701137528586/tupian%2020.png?x-oss-process=style%2Fpng_small",
+  "Electric Cookers": "https://s.alicdn.com/@sc04/kf/Hb2c1984cb8ad478eae1877366cfc9550w/Induction-and-Ceramic-Mix-Hob-Touch-Screen-2-Plate-Black-Crystal-Plate-Cooker-Induction-Hob-with-Ceramic-Top.jpg",
+  "Microwaves": "https://image.made-in-china.com/202f0j00gNdczvwJUyqn/20L-Solo-Microwave-Oven-Mechanical-Countertop-Microwave-Table-Microwave.webp",
+  "Dishwashers": "https://www.joegraham.co.uk/media/misc/matrix_mdi6011_1341249_34-0100-0341.png",
+  "Water Purifiers": "https://static.wixstatic.com/media/e1931c_a6936a88ed874cafb077319532286bec~mv2.webp/v1/fill/w_640%2Ch_640%2Cal_c%2Cq_85%2Cusm_0.66_1.00_0.01%2Cenc_avif%2Cquality_auto/e1931c_a6936a88ed874cafb077319532286bec~mv2.webp",
+  "Storage Water Heaters": "https://static.euroterm24.pl/GA/L0/70/-0/1-/05/00/00/0/BIG.jpg?hash=284a4d0215878bf6ebed94a4664dd04c",
+  "Gas Water Heaters": "https://www.noritz.com.cn/upload/product/202504091702580026.png",
+  "Smart Toilets": "https://hwell-wc.com/uppic/i8-1.jpg",
+  "Smart Home Devices": "https://cdn.xuansiwei.com/liuji7923/1701137581371/tupian%2016.png?x-oss-process=style%2Fpng_small"
 };
 
 async function main() {
