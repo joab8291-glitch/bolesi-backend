@@ -10,7 +10,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
-    "db:deploy": "prisma db push"
+    "db:deploy": "prisma db push",
+    "prestart": "node --check src/server.js && node --check src/app.js && node --check src/routes/api.js && node --check prisma/seed.js"
   },
   "engines": {
     "node": ">=20"
