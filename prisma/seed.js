@@ -69,7 +69,17 @@ const catalogue = [
   { name: "Electric Ceramic Stove YL-CF6002D", sku: "YL-CF6002D", price: 44900, category: "Electric Cookers", model: "YL-CF6002D", description: "6000W, 220–240V, 50/60Hz. Cutout: 560 × 490 mm. Product: 590 × 520 × 52 mm." },
   { name: "Built-in Dishwasher BLS-Q03E", sku: "BLS-Q03E", price: 92800, category: "Dishwashers", model: "BLS-Q03E", description: "Product: 598 × 550 × 815 mm. Package: 645 × 645 × 884 mm." },
   { name: "Desktop Microwave Oven BLS-20UG21-L-1-20L", sku: "BLS-20UG21-L-1-20L", price: 32800, category: "Microwaves", model: "BLS-20UG21-L-1-20L", description: "20L desktop microwave oven. Source listing gives size 595 × 375 × 388 mm; verify specification with BOLESI." },
-  { name: "Built-in Oven F-125", sku: "F-125", price: 53500, category: "Built-in Ovens", model: "F-125", description: "Product size: 600 × 600 × 500 mm. Packing: 635 × 570 × 640 mm." }
+  { name: "Built-in Oven F-125", sku: "F-125", price: 53500, category: "Built-in Ovens", model: "F-125", description: "Product size: 600 × 600 × 500 mm. Packing: 635 × 570 × 640 mm." },
+
+  // Editable DEMO mock-ups for homepage categories with no active catalogue item.
+  // Replace the sample image, price and copy in Admin > Products before taking real orders.
+  { name: "DEMO — Modern Bathroom Fixture Set", sku: "DEMO-BATH-001", price: 1000, category: "Bathroom", model: "DEMO-BATH-001", description: "SAMPLE MOCK-UP PRODUCT. Placeholder price and details for layout testing only. Edit all details and replace the image in Admin > Products before selling." },
+  { name: "DEMO — Home Cleaning Appliance", sku: "DEMO-CLEAN-001", price: 1000, category: "Cleaning", model: "DEMO-CLEAN-001", description: "SAMPLE MOCK-UP PRODUCT. Placeholder price and details for layout testing only. Edit all details and replace the image in Admin > Products before selling." },
+  { name: "DEMO — BOLESI Collections Bundle", sku: "DEMO-COLL-001", price: 1000, category: "Collections", model: "DEMO-COLL-001", description: "SAMPLE MOCK-UP PRODUCT. Placeholder price and details for layout testing only. Edit all details and replace the image in Admin > Products before selling." },
+  { name: "DEMO — Kitchen Appliances Starter Set", sku: "DEMO-KITCHEN-001", price: 1000, category: "Kitchen Appliances", model: "DEMO-KITCHEN-001", description: "SAMPLE MOCK-UP PRODUCT. Placeholder price and details for layout testing only. Edit all details and replace the image in Admin > Products before selling." },
+  { name: "DEMO — Special Promotion Appliance", sku: "DEMO-PROMO-001", price: 1000, category: "Promotions", model: "DEMO-PROMO-001", description: "SAMPLE MOCK-UP PRODUCT. Placeholder price and details for layout testing only. Edit all details and replace the image in Admin > Products before selling." },
+  { name: "DEMO — Smart Home Starter Device", sku: "DEMO-SMART-001", price: 1000, category: "Smart Home Devices", model: "DEMO-SMART-001", description: "SAMPLE MOCK-UP PRODUCT. Placeholder price and details for layout testing only. Edit all details and replace the image in Admin > Products before selling." },
+  { name: "DEMO — Gas Water Heater", sku: "DEMO-GAS-HEATER-001", price: 1000, category: "Gas Water Heaters", model: "DEMO-GAS-HEATER-001", description: "SAMPLE MOCK-UP PRODUCT. Placeholder price and details for layout testing only. Edit all details and replace the image in Admin > Products before selling." }
 ];
 
 const slugify = (value) => String(value || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -95,6 +105,12 @@ const categorySlug = (name) => {
 // Use only verified source images; a category image is used where the same official
 // catalogue image clearly represents that product family. Missing prices remain drafts.
 const categoryImages = {
+  "Bathroom": "https://placehold.co/640x640/f2f7f7/17324d?text=DEMO+Bathroom",
+  "Cleaning": "https://placehold.co/640x640/f2f7f7/17324d?text=DEMO+Cleaning",
+  "Collections": "https://placehold.co/640x640/f2f7f7/17324d?text=DEMO+Collection",
+  "Kitchen Appliances": "https://placehold.co/640x640/f2f7f7/17324d?text=DEMO+Kitchen",
+  "Promotions": "https://placehold.co/640x640/f2f7f7/17324d?text=DEMO+Promotion",
+  "Gas Water Heaters": "https://placehold.co/640x640/f2f7f7/17324d?text=DEMO+Gas+Heater",
   "Gas Hobs & Cookers": "https://cdn.xuansiwei.com/liuji7923/1701137816768/tupian%203.png?x-oss-process=style%2Fpng_small",
   "Smart Locks": "https://cdn.xuansiwei.com/liuji7923/1701137581371/tupian%2016.png?x-oss-process=style%2Fpng_small",
   "Built-in Ovens": "https://cdn.xuansiwei.com/liuji7923/1776104519469/tupian2_r__1446-1412_c__0c0c0d_.png?x-oss-process=style%2Fpng_small",
