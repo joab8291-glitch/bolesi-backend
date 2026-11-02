@@ -96,8 +96,10 @@ const categorySlug = (name) => {
 // catalogue image clearly represents that product family. Missing prices remain drafts.
 const categoryImages = {
   "Gas Hobs & Cookers": "https://cdn.xuansiwei.com/liuji7923/1701137816768/tupian%203.png?x-oss-process=style%2Fpng_small",
-  "Smart Locks": "https://cdn.xuansiwei.com/liuji7923/1701137596391/tupian%2015.png?x-oss-process=style%2Fpng_small",
-  "Built-in Ovens": "https://cdn.xuansiwei.com/liuji7923/1776104519469/tupian2_r__1446-1412_c__0c0c0d_.png?x-oss-process=style%2Fpng_small"
+  "Smart Locks": "https://cdn.xuansiwei.com/liuji7923/1701137581371/tupian%2016.png?x-oss-process=style%2Fpng_small",
+  "Built-in Ovens": "https://cdn.xuansiwei.com/liuji7923/1776104519469/tupian2_r__1446-1412_c__0c0c0d_.png?x-oss-process=style%2Fpng_small",
+  "Range Hoods": "https://cdn.xuansiwei.com/liuji7923/1701137762425/tupian%206.png?x-oss-process=style%2Fpng_small",
+  "Instant Water Heaters": "https://cdn.xuansiwei.com/liuji7923/1701137528586/tupian%2020.png?x-oss-process=style%2Fpng_small"
 };
 
 async function main() {
