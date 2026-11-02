@@ -60,7 +60,8 @@ router.post("/auth/admin-bootstrap", asyncRoute(async (req, res) => {
   const data = z.object({ name: z.string().min(2).max(100), email: z.string().email().transform(v => v.toLowerCase()), password: z.string().min(12).max(100) }).parse(req.body);
   const existing = await prisma.user.findFirst({ where: { role: "SUPER_ADMIN" } });
   if (existing) return res.status(409).json({ error: "Super administrator is already configured" });
-  const user = await prisma.user.create({ data: { ...data, passwordHash: await bcrypt.hash(data.password, 12), role: "SUPER_ADMIN" }, select: { id: true, name: true, email: true, role: true } });
+  const { password, ...userData } = data;
+  const user = await prisma.user.create({ data: { ...userData, passwordHash: await bcrypt.hash(password, 12), role: "SUPER_ADMIN" }, select: { id: true, name: true, email: true, role: true } });
   res.status(201).json({ user, token: tokenFor(user) });
 }));
 router.get("/auth/me", auth(), (req, res) => res.json({ user: req.user }));
