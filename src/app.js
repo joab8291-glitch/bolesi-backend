@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api", rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false }));
 
 app.get("/", (_req, res) => res.json({ service: "BOLESI API", status: "ok", docs: "/api/health" }));
-app.get("/api/health", async (_req, res) => {
+app.get("/api/health-old", async (_req, res) => {
   let database = "not_configured";
   try {
     if (process.env.DATABASE_URL) {
@@ -35,6 +35,8 @@ app.get("/api/health", async (_req, res) => {
     service: "bolesi-backend", database, timestamp: new Date().toISOString()
   });
 });
+
+app.use("/api", require("./routes/api"));
 
 app.use((req, res) => res.status(404).json({ error: "Route not found", path: req.originalUrl }));
 app.use((err, _req, res, _next) => {
