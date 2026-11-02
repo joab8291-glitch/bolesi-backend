@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
+const crypto = require("crypto");
 const { z } = require("zod");
 const { prisma } = require("../lib/prisma");
 
@@ -156,9 +157,17 @@ router.patch("/admin/orders/:id/status", admin, asyncRoute(async (req, res) => {
   res.json({ order: await prisma.order.update({ where: { id: req.params.id }, data }) });
 }));
 router.post("/admin/orders/:id/confirm-payment", admin, asyncRoute(async (req, res) => {
-  const order = await prisma.order.update({ where: { id: req.params.id }, data: { paymentStatus: "SUCCESS", status: "PROCESSING" } });
-  await prisma.payment.create({ data: { orderId: order.id, method: order.paymentMethod, status: "SUCCESS", amount: order.total, resultDescription: "Payment manually confirmed by super administrator" } });
-  res.json({ order });
+  const order = await prisma.order.findUniqueOrThrow({ where: { id: req.params.id }, include: { items: true } });
+  if (order.paymentStatus === "SUCCESS") return res.json({ order });
+  const updated = await prisma.$transaction(async tx => {
+    if (order.branchId) for (const item of order.items) {
+      await tx.inventory.updateMany({ where: { productId: item.productId, branchId: order.branchId, reserved: { gte: item.quantity }, quantity: { gte: item.quantity } }, data: { quantity: { decrement: item.quantity }, reserved: { decrement: item.quantity } } });
+    }
+    const saved = await tx.order.update({ where: { id: order.id }, data: { paymentStatus: "SUCCESS", status: "PROCESSING" } });
+    await tx.payment.create({ data: { orderId: order.id, method: order.paymentMethod, status: "SUCCESS", amount: order.total, resultDescription: "Payment manually confirmed by super administrator" } });
+    return saved;
+  });
+  res.json({ order: updated });
 }));
 
 // Checkout: prices and stock are always re-read from the database.
@@ -177,8 +186,9 @@ router.post("/orders", asyncRoute(async (req, res) => {
   if (products.length !== productIds.length) return res.status(400).json({ error: "One or more products are unavailable" });
   const byId = new Map(products.map(p => [p.id, p]));
   const subtotal = data.items.reduce((sum, item) => sum + Number(byId.get(item.productId).price) * item.quantity, 0);
-  const deliveryFee = 0; // Configure an explicit delivery rule before charging delivery.
-  const orderNumber = "BOL-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(Math.random() * 900 + 100);
+  const deliveryFee = data.fulfilment === "DELIVERY" ? Number(process.env.DELIVERY_FEE_KES || NaN) : 0;
+  if (data.fulfilment === "DELIVERY" && (!Number.isFinite(deliveryFee) || deliveryFee < 0)) return res.status(503).json({ error: "Home delivery is not configured yet. Please choose shop collection or contact BOLESI." });
+  const orderNumber = "BOL-" + Date.now().toString(36).toUpperCase() + "-" + crypto.randomBytes(3).toString("hex").toUpperCase();
   const order = await prisma.$transaction(async tx => {
     for (const item of data.items) {
       const stock = await tx.inventory.findUnique({ where: { productId_branchId: { productId: item.productId, branchId: data.branchId } } });
@@ -238,15 +248,18 @@ router.post("/payments/mpesa/callback", asyncRoute(async (req, res) => {
   if (!callback?.CheckoutRequestID) return res.status(400).json({ ResultCode: 1, ResultDesc: "Invalid callback" });
   const payment = await prisma.payment.findUnique({ where: { checkoutRequestId: callback.CheckoutRequestID }, include: { order: true } });
   if (!payment) return res.json({ ResultCode: 0, ResultDesc: "Acknowledged" });
+  if (["SUCCESS", "FAILED", "CANCELLED"].includes(payment.status)) return res.json({ ResultCode: 0, ResultDesc: "Already processed" });
   const success = Number(callback.ResultCode) === 0;
   const metadata = callback.CallbackMetadata?.Item || [];
   const receipt = metadata.find(x => x.Name === "MpesaReceiptNumber")?.Value;
   await prisma.$transaction(async tx => {
     await tx.payment.update({ where: { id: payment.id }, data: { status: success ? "SUCCESS" : "FAILED", receiptNumber: receipt || null, resultCode: String(callback.ResultCode), resultDescription: callback.ResultDesc || "", rawCallback: req.body } });
     await tx.order.update({ where: { id: payment.orderId }, data: { paymentStatus: success ? "SUCCESS" : "FAILED", status: success ? "PAID" : "PAYMENT_PENDING", mpesaReceipt: receipt || undefined } });
-    if (!success) {
-      for (const item of await tx.orderItem.findMany({ where: { orderId: payment.orderId } })) {
-        await tx.inventory.updateMany({ where: { productId: item.productId, branchId: payment.order.branchId }, data: { reserved: { decrement: item.quantity } } });
+    for (const item of await tx.orderItem.findMany({ where: { orderId: payment.orderId } })) {
+      if (success) {
+        await tx.inventory.updateMany({ where: { productId: item.productId, branchId: payment.order.branchId, reserved: { gte: item.quantity }, quantity: { gte: item.quantity } }, data: { quantity: { decrement: item.quantity }, reserved: { decrement: item.quantity } } });
+      } else {
+        await tx.inventory.updateMany({ where: { productId: item.productId, branchId: payment.order.branchId, reserved: { gte: item.quantity } }, data: { reserved: { decrement: item.quantity } } });
       }
     }
   });
