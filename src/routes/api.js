@@ -37,7 +37,7 @@ const phoneForMpesa = (value) => {
 const safeProduct = (p) => ({ ...p, price: Number(p.price), compareAtPrice: p.compareAtPrice == null ? null : Number(p.compareAtPrice) });
 
 router.get("/health", asyncRoute(async (_req, res) => {
-  await prisma.$queryRaw\`SELECT 1\`;
+  await prisma.$queryRaw`SELECT 1`;
   res.json({ status: "healthy", service: "bolesi-backend", database: "connected", timestamp: new Date().toISOString() });
 }));
 
