@@ -5,7 +5,7 @@
   "description": "BOLESI commerce API and M-Pesa Daraja integration",
   "main": "src/server.js",
   "scripts": {
-    "start": "if [ -n \"$DATABASE_URL\" ]; then npx prisma db push; fi; node src/server.js",
+    "start": "if [ -n \"$DATABASE_URL\" ]; then npx prisma db push && node prisma/seed.js; fi; node src/server.js",
     "dev": "nodemon src/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
