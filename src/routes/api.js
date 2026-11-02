@@ -115,6 +115,13 @@ router.delete("/admin/categories/:id", admin, asyncRoute(async (req, res) => {
   await prisma.category.update({ where: { id: req.params.id }, data: { isActive: false } });
   res.json({ success: true });
 }));
+router.get("/admin/products", admin, asyncRoute(async (_req, res) => {
+  const products = await prisma.product.findMany({
+    include: { category: true, images: { orderBy: { sortOrder: "asc" } }, inventory: { where: { branch: { isActive: true } }, select: { quantity: true, reserved: true, branchId: true } } },
+    orderBy: [{ updatedAt: "desc" }]
+  });
+  res.json({ products: products.map(safeProduct) });
+}));
 router.post("/admin/products", admin, asyncRoute(async (req, res) => {
   const data = z.object({ name: z.string().min(2).max(180), sku: z.string().min(1).max(80), model: z.string().max(100).optional(), brand: z.string().max(100).optional(), description: z.string().max(10000).optional(), specifications: z.record(z.string(), z.unknown()).optional(), price: z.number().positive(), compareAtPrice: z.number().positive().nullable().optional(), status: z.enum(["DRAFT", "ACTIVE", "ARCHIVED"]).optional(), isFeatured: z.boolean().optional(), categoryId: z.string().nullable().optional(), images: z.array(z.object({ url: z.string().url(), alt: z.string().max(200).optional() })).max(12).optional() }).parse(req.body);
   const slug = slugify(data.name) + "-" + slugify(data.sku);
@@ -133,6 +140,12 @@ router.patch("/admin/products/:id", admin, asyncRoute(async (req, res) => {
 router.delete("/admin/products/:id", admin, asyncRoute(async (req, res) => {
   await prisma.product.update({ where: { id: req.params.id }, data: { status: "ARCHIVED" } });
   res.json({ success: true });
+}));
+router.put("/admin/products/:id/images", admin, asyncRoute(async (req, res) => {
+  const data = z.object({ images: z.array(z.object({ url: z.string().url(), alt: z.string().max(200).optional() })).max(12) }).parse(req.body);
+  await prisma.productImage.deleteMany({ where: { productId: req.params.id } });
+  if (data.images.length) await prisma.productImage.createMany({ data: data.images.map((img, i) => ({ ...img, productId: req.params.id, sortOrder: i })) });
+  res.json({ replaced: data.images.length });
 }));
 router.post("/admin/products/:id/images", admin, asyncRoute(async (req, res) => {
   const data = z.object({ images: z.array(z.object({ url: z.string().url(), alt: z.string().max(200).optional() })).min(1).max(12) }).parse(req.body);
