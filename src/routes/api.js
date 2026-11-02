@@ -65,6 +65,12 @@ router.post("/auth/admin-bootstrap", asyncRoute(async (req, res) => {
 }));
 router.get("/auth/me", auth(), (req, res) => res.json({ user: req.user }));
 
+// Safe public runtime capabilities; never expose credentials.
+router.get("/config/public", (_req, res) => res.json({
+  payments: { mpesaEnabled: Boolean(process.env.MPESA_CONSUMER_KEY && process.env.MPESA_CONSUMER_SECRET && process.env.MPESA_SHORTCODE && process.env.MPESA_PASSKEY && process.env.MPESA_CALLBACK_URL), payAtShopEnabled: true },
+  fulfilment: { collectionEnabled: true, deliveryEnabled: process.env.DELIVERY_FEE_KES !== undefined && process.env.DELIVERY_FEE_KES !== "", deliveryFee: process.env.DELIVERY_FEE_KES ? Number(process.env.DELIVERY_FEE_KES) : null }
+}));
+
 // Public catalogue.
 router.get("/categories", asyncRoute(async (_req, res) => {
   const categories = await prisma.category.findMany({ where: { isActive: true }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }] });
@@ -178,6 +184,7 @@ router.post("/orders", asyncRoute(async (req, res) => {
     branchId: z.string(), deliveryAddress: z.record(z.string(), z.unknown()).optional(),
     items: z.array(z.object({ productId: z.string(), quantity: z.number().int().min(1).max(20) })).min(1).max(30)
   }).parse(req.body);
+  if (data.paymentMethod === "MPESA" && !(process.env.MPESA_CONSUMER_KEY && process.env.MPESA_CONSUMER_SECRET && process.env.MPESA_SHORTCODE && process.env.MPESA_PASSKEY && process.env.MPESA_CALLBACK_URL)) return res.status(503).json({ error: "M-Pesa checkout is not configured yet. Please choose pay at shop or contact BOLESI." });
   if (data.fulfilment === "DELIVERY" && !data.deliveryAddress) return res.status(400).json({ error: "Delivery address is required" });
   const branch = await prisma.branch.findFirst({ where: { id: data.branchId, isActive: true } });
   if (!branch) return res.status(400).json({ error: "Select a valid branch" });
