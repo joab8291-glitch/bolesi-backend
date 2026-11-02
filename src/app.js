@@ -6,11 +6,29 @@ const rateLimit = require("express-rate-limit");
 const app = express();
 app.set("trust proxy", 1);
 app.use(helmet());
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || process.env.FRONTEND_URL || "http://localhost:3000")
-  .split(",").map((origin) => origin.trim()).filter(Boolean);
+const normalizeOrigin = (value) => {
+  try { return new URL(String(value).trim()).origin; }
+  catch { return String(value || "").trim().replace(/\\/+$/, ""); }
+};
+const configuredOrigins = [
+  ...(process.env.ALLOWED_ORIGINS || "").split(","),
+  process.env.FRONTEND_URL || "",
+  "https://bolesi.vercel.app",
+  "http://localhost:3000"
+].map(normalizeOrigin).filter(Boolean);
+const allowedOrigins = new Set(configuredOrigins);
+const isBolesiVercelOrigin = (value) => {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" &&
+      (url.hostname === "bolesi.vercel.app" ||
+       (/^bolesi-[a-z0-9-]+\\.vercel\\.app$/i).test(url.hostname));
+  } catch { return false; }
+};
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    const normalized = origin ? normalizeOrigin(origin) : "";
+    if (!origin || allowedOrigins.has(normalized) || isBolesiVercelOrigin(normalized)) return callback(null, true);
     return callback(new Error("Origin is not allowed by CORS"));
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
