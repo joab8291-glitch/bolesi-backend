@@ -58,8 +58,13 @@ app.use("/api", require("./routes/api"));
 
 app.use((req, res) => res.status(404).json({ error: "Route not found", path: req.originalUrl }));
 app.use((err, _req, res, _next) => {
-  console.error("API error:", err.message);
-  res.status(err.status || 500).json({ error: err.status ? err.message : "Internal server error" });
+  if (err && err.name === "ZodError") {
+    return res.status(400).json({ error: "Invalid request data", details: err.issues.map(({ path, message }) => ({ path, message })) });
+  }
+  const status = Number.isInteger(err?.status) ? err.status : 500;
+  if (status >= 500) console.error("API error:", err?.name || "UnknownError", err?.code || "");
+  else console.warn("API request rejected:", status);
+  res.status(status).json({ error: status >= 500 ? "Internal server error" : (err.message || "Request rejected") });
 });
 
 module.exports = app;
